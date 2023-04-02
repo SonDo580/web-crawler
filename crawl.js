@@ -36,22 +36,42 @@ function getURLsFromHTML(html, baseURL) {
   return urls;
 }
 
-async function crawlPage(currentURL) {
+async function crawlPage(baseURL, currentURL, pages) {
+  const baseURLObj = new URL(baseURL);
+  const currentURLObj = new URL(currentURL);
+  if (baseURLObj.hostname !== currentURLObj.hostname) {
+    return pages;
+  }
+
+  const normalizedCurrentURL = normalizeURL(currentURL);
+  if (pages[normalizedCurrentURL] > 0) {
+    pages[normalizedCurrentURL] += 1;
+    return pages;
+  }
+  pages[normalizedCurrentURL] = 1;
+
+  console.log(`Crawling ${currentURL}`);
   try {
     const response = await fetch(currentURL);
 
     if (response.status > 399) {
       console.log(`${response.statusText} - page: ${currentURL}`);
-      return;
+      return pages;
     }
 
     if (!response.headers.get("content-type").includes("text/html")) {
       console.log(`Non HTML response - page: ${currentURL}`);
-      return;
+      return pages;
     }
 
     const html = await response.text();
-    console.log(html);
+    const urls = getURLsFromHTML(html, baseURL);
+
+    for (const url of urls) {
+      pages = await crawlPage(baseURL, url, pages);
+    }
+
+    return pages;
   } catch (err) {
     console.log(`${err.message} - page: ${currentURL}`);
   }
