@@ -1,5 +1,6 @@
 const { crawlPage } = require("./crawl");
 const { printReport } = require("./report");
+const { trimTrailingSlash } = require("./trim");
 
 async function main() {
   if (process.argv.length !== 3) {
@@ -7,7 +8,7 @@ async function main() {
     process.exit(1);
   }
 
-  const baseURL = process.argv[2];
+  const baseURL = trimTrailingSlash(process.argv[2]);
   console.log(`Start crawling ${baseURL}`);
 
   try {
