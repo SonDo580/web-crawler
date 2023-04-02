@@ -8,6 +8,10 @@ function normalizeURL(url) {
   return hostPath;
 }
 
+function getURLsFromHTML(htmlBody, baseURL) {
+  return [];
+}
+
 module.exports = {
   normalizeURL,
 };
